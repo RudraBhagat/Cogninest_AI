@@ -87,7 +87,7 @@ Expected database contents:
 python seed_memory.py
 ```
 
-This loads 25 known question-to-SQL pairs into DemoAgentMemory so the app can answer the benchmark prompts deterministically, even when the LLM is unavailable.
+This loads 20 known question-to-SQL pairs into DemoAgentMemory so the app can answer the benchmark prompts deterministically, even when the LLM is unavailable.
 
 6. Start the API server.
 
