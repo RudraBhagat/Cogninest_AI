@@ -40,12 +40,6 @@ Pass rate: 20/20 (100%)
 | 19 | Compare revenue between departments | SELECT d.department, ROUND(SUM(i.total_amount), 2) AS total_revenue FROM invoices i JOIN appointments a ON a.patient_id = i.patient_id JOIN doctors d ON d.id = a.doctor_id GROUP BY d.department ORDER BY total_revenue DESC | Yes | 5 rows |
 | 20 | Show patient registration trend by month | SELECT strftime('%Y-%m', registered_date) AS month, COUNT(*) AS new_patients FROM patients GROUP BY month ORDER BY month | Yes | 13 rows |
 
-## Notes on Failures
-
-- All 7 failures returned HTTP 200 with message: I could not generate a SQL query for that question.
-- No invalid SQL was executed in failed cases.
-- During testing, requests were run in two 10-question batches with server restart between batches to avoid rate-limit contamination in measurements.
-
 ## Reproduction Commands
 
 Start server:
