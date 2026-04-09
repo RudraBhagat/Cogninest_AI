@@ -6,7 +6,7 @@ Cogninest AI is a Natural Language to SQL chatbot for a clinic dataset. It uses 
 
 Typical flow:
 
-- User asks a question such as "Show me the top 5 patients by spending"
+- User asks a question such as "How many patients do we have?"
 - The app resolves the question to SQL, using seeded examples first
 - SQL is validated for safety
 - SQLite executes the query
