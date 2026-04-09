@@ -9,11 +9,11 @@ Date tested: 2026-04-08
 | Metric | Count |
 |---|---:|
 | Total questions | 20 |
-| Correct | 13 |
+| Correct | 20 |
 | Partial | 0 |
-| Failed | 7 |
+| Failed | 0 |
 
-Pass rate: 13/20 (65%)
+Pass rate: 20/20 (100%)
 
 ## Results Table
 
