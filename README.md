@@ -1,77 +1,64 @@
 # NL2SQL Chatbot Assignment Submission
 
-## About This Project
+## Overview
 
-This project is a working Natural Language to SQL chatbot built for the AI/ML Developer Intern assignment.
+Cogninest AI is a Natural Language to SQL chatbot for a clinic dataset. It uses Vanna 2.0, FastAPI, and SQLite so users can ask plain-English questions and receive query results without writing SQL manually.
 
-It uses Vanna AI 2.0 with FastAPI and SQLite so users can ask questions in plain English and receive query results without writing SQL manually.
+Typical flow:
 
-Example flow:
-
-- User asks: "Show me the top 5 patients by total spending"
-- System generates SQL
+- User asks a question such as "Show me the top 5 patients by spending"
+- The app resolves the question to SQL, using seeded examples first
 - SQL is validated for safety
-- SQL runs against SQLite
-- API returns summary, rows, and optional chart data
+- SQLite executes the query
+- The API returns a message, columns, rows, and optional chart data
 
-## Tech Stack
+## Stack
 
-| Technology | Version | Purpose |
-|---|---|---|
-| Python | 3.10+ | Backend language |
-| Vanna | 2.0.x | Agent + NL2SQL orchestration |
-| FastAPI | Latest | API framework |
-| SQLite | Built-in | Database |
-| Plotly | Latest | Chart generation |
-| Pandas | Latest | Tabular handling for charts |
-| python-dotenv | Latest | Env var loading |
+| Technology | Purpose |
+|---|---|
+| Python | Backend language |
+| FastAPI | API framework |
+| SQLite | Local database |
+| Vanna 2.0 | NL2SQL orchestration |
+| Plotly | Chart generation |
+| Pandas | Result shaping for charts |
+| python-dotenv | Environment loading |
 
-### Chosen LLM Provider
+### LLM Provider
 
 - Provider: Google Gemini
 - Model: gemini-2.0-flash
-- Vanna integration: `from vanna.integrations.google import GeminiLlmService`
+- Integration: GeminiLlmService from Vanna
 
-## Project Structure
+## Project Layout
 
 ```text
 Cogninest_AI/
-├── main.py              # FastAPI app and NL2SQL pipeline
-├── vanna_setup.py       # Vanna Agent, tools, memory, resolver, provider wiring
-├── setup_database.py    # Creates schema and inserts dummy data
-├── seed_memory.py       # Seeds DemoAgentMemory with known good Q&A SQL pairs
-├── requirements.txt     # Python dependencies
-├── RESULTS.md           # Evaluation results for the 20 test questions
-└── README.md            # This file
+├── main.py           # FastAPI app and NL2SQL pipeline
+├── vanna_setup.py    # Vanna agent, tool wiring, memory, provider config
+├── setup_database.py # Creates schema and seeds clinic data
+├── seed_memory.py    # Seeds DemoAgentMemory with known question/SQL pairs
+├── requirements.txt  # Python dependencies
+├── RESULTS.md        # Benchmark notes for the 20 test questions
+└── README.md         # This file
 ```
 
-## Step-by-Step Setup Instructions
+## Setup
 
-1. Clone or download the repository and enter project directory.
-
-```bash
-cd Cogninest_AI
-```
-
-2. Create a virtual environment.
-
-```bash
-python -m venv .venv
-```
-
-3. Activate virtual environment.
+1. Create and activate a virtual environment.
 
 ```powershell
+python -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
-4. Install dependencies.
+2. Install dependencies.
 
-```bash
+```powershell
 pip install -r requirements.txt
 ```
 
-5. Create `.env` in project root and configure provider.
+3. Create a `.env` file in the project root.
 
 ```env
 LLM_PROVIDER=gemini
@@ -80,50 +67,48 @@ GEMINI_MODEL=gemini-2.0-flash
 DB_PATH=clinic.db
 ```
 
-6. Create database and seed dummy clinic data.
+4. Create and seed the database.
 
-```bash
+```powershell
 python setup_database.py
 ```
 
-Expected: script creates `clinic.db` and prints table row summary.
+Expected database contents:
 
-## How to Run the Memory Seeding Script
+- 15 doctors
+- 200 patients
+- 500 appointments
+- 350 treatments
+- 300 invoices
 
-Run:
+5. Seed the agent memory.
 
-```bash
+```powershell
 python seed_memory.py
 ```
 
-What it does:
+This loads 25 known question-to-SQL pairs into DemoAgentMemory so the app can answer the benchmark prompts deterministically, even when the LLM is unavailable.
 
-- Initializes Vanna Agent and DemoAgentMemory
-- Inserts pre-defined good question-SQL examples
-- Covers patient, doctor, appointment, finance, and time-trend patterns
+6. Start the API server.
 
-## How to Start the API Server
-
-Run:
-
-```bash
+```powershell
 uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Open:
+Open these URLs in the browser:
 
-- App root: `http://127.0.0.1:8000/`
-- Browser chat page: `http://127.0.0.1:8000/chat`
-- Swagger docs: `http://127.0.0.1:8000/docs`
-- ReDoc: `http://127.0.0.1:8000/redoc`
+- App root: http://127.0.0.1:8000/
+- Chat UI: http://127.0.0.1:8000/chat
+- Swagger docs: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
 
-## API Documentation
+## API
 
 ### POST /chat
 
-Accepts natural language question and returns SQL + results.
+Accepts a natural-language question and returns the generated SQL plus query results.
 
-Request:
+Request example:
 
 ```http
 POST /chat
@@ -138,7 +123,7 @@ Example response:
 
 ```json
 {
-  "message": "Result: 200",
+  "message": "Here are the results for your question. Found 1 row with columns: total_patients.",
   "sql_query": "SELECT COUNT(*) AS total_patients FROM patients",
   "columns": ["total_patients"],
   "rows": [[200]],
@@ -157,7 +142,7 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/chat" -Method POST -ContentType "a
 
 ### GET /health
 
-Checks app and DB status.
+Returns app and database status.
 
 Example response:
 
@@ -165,76 +150,38 @@ Example response:
 {
   "status": "ok",
   "database": "connected",
-  "agent_memory_items": 20,
+  "agent_memory_items": 25,
   "uptime_seconds": 42.1
 }
 ```
 
 ### GET /chat
 
-Returns a lightweight HTML page for browser-based interaction with POST /chat.
+Returns a lightweight browser page for interacting with POST /chat.
 
-## Architecture Overview (Brief)
+## Implementation Notes
 
-```text
-User Question (English)
-        |
-        v
-   FastAPI Backend (main.py)
-        |
-        v
-   Vanna 2.0 Agent (vanna_setup.py)
-   - GeminiLlmService
-   - ToolRegistry
-   - RunSqlTool
-   - VisualizeDataTool
-   - SaveQuestionToolArgsTool
-   - SearchSavedCorrectToolUsesTool
-   - DemoAgentMemory
-        |
-        v
-   SQL Validation
-   - SELECT only
-   - Reject dangerous/system-table queries
-        |
-        v
-   SQLite Execution (clinic.db)
-        |
-        v
-   Response Formatter
-   - message summary
-   - sql_query
-   - columns/rows/row_count
-   - optional chart payload
-```
+- `setup_database.py` creates the schema and inserts the sample clinic data.
+- `seed_memory.py` stores curated question/SQL pairs for reliable benchmark answers.
+- `main.py` validates SQL so only `SELECT` queries are executed.
+- Generated charts are created with Plotly when the result shape supports it.
+- If the LLM provider hits quota limits, seeded prompts still work through the cached examples.
 
-## Requirement Mapping (Assignment Checklist)
+## Benchmark Coverage
 
-- SQLite schema + dummy data: implemented in `setup_database.py`
-- 15 doctors, 200 patients, 500 appointments, 350 treatments, 300 invoices: implemented
-- Vanna 2.0 Agent setup: implemented in `vanna_setup.py`
-- DemoAgentMemory seeding with 15+ Q&A pairs: implemented in `seed_memory.py`
-- FastAPI endpoints (`/chat`, `/health`): implemented in `main.py`
-- SQL safety validation (SELECT-only + dangerous keyword filtering): implemented
-- Error handling for invalid SQL / DB failures / empty results: implemented
-- Documentation and reproducible run steps: provided in this README
-- 20-question evaluation: documented in `RESULTS.md`
+The repository includes 20 benchmark questions covering:
 
-## Evaluation Notes
+- Counts and lists
+- Date filtering
+- Aggregations and ordering
+- Join-heavy revenue and treatment queries
+- Grouping, HAVING, and time-series trends
 
-The assignment asks for both successful behavior and honest reporting of failures.
+See [RESULTS.md](RESULTS.md) for the test matrix and query outputs.
 
-- For known seeded patterns, responses are deterministic and reliable.
-- For non-seeded NL prompts, output quality depends on LLM provider availability/quota.
-- If provider quota is exhausted, check seeded questions or switch to Groq/Ollama.
+## Troubleshooting
 
-## Common Troubleshooting
-
-- `Method Not Allowed` on `/chat` in browser:
-  - Use `POST /chat` for API calls, or open `GET /chat` web page.
-- `GOOGLE_API_KEY` missing:
-  - Add key to `.env`.
-- Provider quota errors:
-  - Wait/reset quota or switch provider to Groq/Ollama.
-- `Address already in use` on port 8000:
-  - Use another port, e.g. `--port 8080`.
+- If `/chat` shows `Method Not Allowed`, use POST requests or open the browser chat page.
+- If `GOOGLE_API_KEY` is missing, add it to `.env`.
+- If Gemini quota is exhausted, the seeded question paths still work, but ad hoc prompts may fall back to an error message.
+- If port 8000 is busy, start Uvicorn on another port such as 8080.
