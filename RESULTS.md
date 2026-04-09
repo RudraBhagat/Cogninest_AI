@@ -35,9 +35,34 @@ Pass rate: 20/20 (100%)
 | 14 | What percentage of appointments are no-shows? | SELECT ROUND(100.0 * SUM(CASE WHEN status = 'No-Show' THEN 1 ELSE 0 END) / COUNT(*), 2) AS no_show_percentage FROM appointments | Yes | 1 row, no_show_percentage=6.6 |
 | 15 | Show the busiest day of the week for appointments | SELECT CASE CAST(strftime('%w', appointment_date) AS INTEGER) WHEN 0 THEN 'Sunday' WHEN 1 THEN 'Monday' WHEN 2 THEN 'Tuesday' WHEN 3 THEN 'Wednesday' WHEN 4 THEN 'Thursday' WHEN 5 THEN 'Friday' WHEN 6 THEN 'Saturday' END AS day_of_week, COUNT(*) AS appointment_count FROM appointments GROUP BY strftime('%w', appointment_date) ORDER BY appointment_count DESC LIMIT 1 | Yes | 1 row, day_of_week=Wednesday |
 | 16 | Revenue trend by month | SELECT strftime('%Y-%m', invoice_date) AS month, ROUND(SUM(total_amount), 2) AS monthly_revenue FROM invoices GROUP BY month ORDER BY month | Yes | 13 rows |
-| 17 | Average appointment duration by doctor | SELECT d.name, d.specialization, ROUND(AVG(t.duration_minutes), 2) AS avg_appointment_duration FROM treatments t JOIN appointments a ON a.id = t.appointment_id JOIN doctors d ON d.id = a.doctor_id GROUP BY d.id ORDER BY avg_appointment_duration DESC | Yes | 15 rows |
-| 18 | List patients with overdue invoices | SELECT p.first_name, p.last_name, i.invoice_date, i.total_amount, i.paid_amount, i.status FROM invoices i JOIN patients p ON p.id = i.patient_id WHERE i.status = 'Overdue' ORDER BY i.invoice_date DESC, i.total_amount DESC | Yes | 47 rows |
-| 19 | Compare revenue between departments | SELECT d.department, ROUND(SUM(i.total_amount), 2) AS total_revenue FROM invoices i JOIN appointments a ON a.patient_id = i.patient_id JOIN doctors d ON d.id = a.doctor_id GROUP BY d.department ORDER BY total_revenue DESC | Yes | 5 rows |
+| 17 | Average appointment duration by doctor | No SQL generated | No | Message: I could not generate a SQL query for that question. |
+| 18 | List patients with overdue invoices | No SQL generated | No | Message: I could not generate a SQL query for that question. |
+| 19 | Compare revenue between departments | SELECT d.department, ROUND(SUM(i.total_amount), 2) AS total_revenue FROM invoices i JOIN appointments a ON a.patient_id = i.patient_id JOIN doctors d ON d.id = a.doctor_id GROUP BY d.department ORDER BY total_revenue DESC | Yes | 5 rows, "columns": [
+    "department",
+    "total_revenue"
+  ],
+  "rows": [
+    [
+      "Heart & Vascular",
+      527849.8
+    ],
+    [
+      "General Medicine",
+      391443.1
+    ],
+    [
+      "Skin & Hair",
+      352362.13
+    ],
+    [
+      "Bone & Joint",
+      322114.52
+    ],
+    [
+      "Child Health",
+      199696.26
+    ]
+  ] |
 | 20 | Show patient registration trend by month | SELECT strftime('%Y-%m', registered_date) AS month, COUNT(*) AS new_patients FROM patients GROUP BY month ORDER BY month | Yes | 13 rows |
 
 ## Notes on Failures
