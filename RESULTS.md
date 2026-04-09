@@ -37,7 +37,32 @@ Pass rate: 20/20 (100%)
 | 16 | Revenue trend by month | SELECT strftime('%Y-%m', invoice_date) AS month, ROUND(SUM(total_amount), 2) AS monthly_revenue FROM invoices GROUP BY month ORDER BY month | Yes | 13 rows |
 | 17 | Average appointment duration by doctor | No SQL generated | No | Message: I could not generate a SQL query for that question. |
 | 18 | List patients with overdue invoices | No SQL generated | No | Message: I could not generate a SQL query for that question. |
-| 19 | Compare revenue between departments | No SQL generated | No | Message: I could not generate a SQL query for that question. |
+| 19 | Compare revenue between departments | SELECT d.department, ROUND(SUM(i.total_amount), 2) AS total_revenue FROM invoices i JOIN appointments a ON a.patient_id = i.patient_id JOIN doctors d ON d.id = a.doctor_id GROUP BY d.department ORDER BY total_revenue DESC | Yes | 5 rows, "columns": [
+    "department",
+    "total_revenue"
+  ],
+  "rows": [
+    [
+      "Heart & Vascular",
+      527849.8
+    ],
+    [
+      "General Medicine",
+      391443.1
+    ],
+    [
+      "Skin & Hair",
+      352362.13
+    ],
+    [
+      "Bone & Joint",
+      322114.52
+    ],
+    [
+      "Child Health",
+      199696.26
+    ]
+  ] |
 | 20 | Show patient registration trend by month | SELECT strftime('%Y-%m', registered_date) AS month, COUNT(*) AS new_patients FROM patients GROUP BY month ORDER BY month | Yes | 13 rows |
 
 ## Notes on Failures

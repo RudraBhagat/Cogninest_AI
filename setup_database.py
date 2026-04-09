@@ -228,7 +228,13 @@ def insert_treatments(
 ):
     c = conn.cursor()
     completed = [(aid, did, s) for aid, did, s in appointments if s == "Completed"]
-    sample    = random.sample(completed, k=min(n, len(completed)))
+    if not completed:
+        return
+
+    sample = random.sample(completed, k=min(n, len(completed)))
+    if len(sample) < n:
+        sample.extend(random.choices(completed, k=n - len(sample)))
+
     for appt_id, doc_id, _ in sample:
         spec     = doc_spec.get(doc_id, "General")
         options  = TREATMENTS.get(spec, TREATMENTS["General"])
